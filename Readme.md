@@ -17,6 +17,8 @@ http://www.ntu.edu.sg/home/assgkhoo/papers/Khoo_et_al.Sentiment_analysis.OIR2012
 Mining Future Spatiotemporal Events and their Sentiment from Online News Articles for Location-Aware Recommendation System	
 http://www.cs.umd.edu/~hjs/pubs/ho-mobigis12.pdf
 
+The data used to train and test is famous polarity dataset from cornell which is movie review dataset Link: http://www.cs.cornell.edu/people/pabo/movie-review-data/. 
+We have used this dataset instead of any news dataset because of unavailabilty of labeled new dataset which is approved universally.
 
 ## How To Run
 "news.py" program is the implementation of "Hierarchical classification in text mining for sentiment analysis of online news" paper. This paper concludes that removing the highly popar sentiment words from the corpus improves the sentiment analysis.
