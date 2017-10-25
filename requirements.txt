@@ -1,0 +1,3 @@
+numpy==1.11.0
+Flask==0.12
+scikit_learn==0.19.1
