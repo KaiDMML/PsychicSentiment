@@ -23,43 +23,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import StratifiedKFold
 sys.setdefaultencoding('utf-8')
 
-# This function is used to read SentiWordNet.txt file which has more than 89k words with sentiment score.
-def get_polarity_words():
-    word_polarity = {}
-    pos_cnt = 0
-    neg_cnt = 0
-    pos_avg = 0
-    neg_avg = 0
-    lenn = 0
-
-    with open('SentiWordNet.txt') as data_file:
-        for line in data_file:
-            if (line[0] == '#'):
-                continue
-            sp = line.split('\t')
-            sp[4] = sp[4].split('#')[0]
-            if sp[4] not in word_polarity:
-                lenn += 1
-                if not sp[2] and not sp[3]:
-                    print sp[2], sp[3]
-                    continue
-                if float(sp[2]) != 0:
-                    pos_cnt = pos_cnt + 1
-                    pos_avg = pos_avg + float(sp[2])
-                if float(sp[3]) != 0:
-                    neg_cnt = neg_cnt + 1
-                    neg_avg = neg_avg + float(sp[3])
-                word_polarity[sp[4].lower()] = {'pos': float(sp[2]), 'neg': float(sp[3])}
-
-    pos_avg = pos_avg / pos_cnt
-    neg_avg = neg_avg / neg_cnt
-    print "Average Positive Sentiment",pos_avg
-    print "Average Negative Sentiment",neg_avg
-    print "Total Words in SentiWordNet",len(word_polarity)
-
-    return word_polarity
-
-# This function is used to remove words with high polarity
 def remove_high_sentiment_words(corpus, threshold1,threshold2,word_polarity):
     for i in range(len(corpus)):
         new_sent = []
@@ -74,48 +37,14 @@ def remove_high_sentiment_words(corpus, threshold1,threshold2,word_polarity):
             new_sent.append(word)
         corpus[i]=' '.join(new_sent)
         corpus[i] = ''.join([x for x in corpus[i] if x in string.ascii_letters + '\'- '])
-        #print corpus[i]
     return corpus
 
-# This function is used to train the data
-def train_SVM_model(corpus, labels):
-    vectorizer = TfidfVectorizer(min_df=5, max_df=0.8, sublinear_tf=True, use_idf=True, stop_words='english')
-    train_corpus_tf_idf = vectorizer.fit_transform(corpus)
+# Load model
+model1,vectorizer,word_polarity=pickle.load(open('hierar_sentiment.model', 'rb'))
 
-    model1 = LinearSVC()
-    model1.fit(train_corpus_tf_idf, labels)
-    return model1,vectorizer
-
-# This function is used to read the data from txt_sentoken which ha 1000 positive and 1000 negative sentiment data.
-def make_Corpus(root_dir):
-    polarity_dirs = [os.path.join(root_dir, f) for f in os.listdir(root_dir)]
-    corpus = []
-    for polarity_dir in polarity_dirs:
-        reviews = [os.path.join(polarity_dir, f) for f in os.listdir(polarity_dir)]
-        for review in reviews:
-            doc_string = ""
-            with open(review) as rev:
-                for line in rev:
-                    doc_string = doc_string + line
-            if not corpus:
-                corpus = [doc_string]
-            else:
-                corpus.append(doc_string)
-    return corpus
-
-postiveTrainThreshold = 2
-negativeTrainThreshold = 2
-
+# Set Test Threshold
 postiveTestThreshold = 0.35
 negativeTestThreshold = 0.4
-
-corpus = make_Corpus('txt_sentoken')
-word_polarity = get_polarity_words()
-labels = np.zeros(2000)
-labels[0:1000] = 0
-labels[1000:2000] = 1
-corpus2 = remove_high_sentiment_words(copy.copy(corpus), postiveTrainThreshold, negativeTrainThreshold, word_polarity)
-model1, vectorizer = train_SVM_model(corpus2, labels)
 
 URL = "psychic.cra.com"
 PORT = 61613  # stomp.
